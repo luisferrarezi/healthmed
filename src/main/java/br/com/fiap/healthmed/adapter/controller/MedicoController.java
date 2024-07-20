@@ -1,11 +1,12 @@
 package br.com.fiap.healthmed.adapter.controller;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
+
 import br.com.fiap.healthmed.adapter.repository.medico.MedicoDto;
+import br.com.fiap.healthmed.core.enums.Especializacao;
 
 public interface MedicoController {	
-	public Page<MedicoDto> consultaPaginada(Pageable paginacao);
+	public List<MedicoDto> consultar(String nome, Especializacao especializacao);
 	public MedicoDto detalhar(Long idMedico);	
 	public MedicoDto cadastrar(MedicoDto dto);	
 	public MedicoDto alterar(Long idMedico, MedicoDto dto);
