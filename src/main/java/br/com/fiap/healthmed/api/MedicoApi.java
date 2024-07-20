@@ -23,8 +23,9 @@ public class MedicoApi {
 	
 	@GetMapping(value = "/consulta", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<MedicoDto> consultar(@RequestParam("nome") String nome, 
-                                     @RequestParam("especializacao") Especializacao especializacao){
+                                     @RequestParam("especializacao") Especializacao especializacao, 
+                                     @RequestParam("idAutenticacao") long idAutenticacao){
         
-		return controller.consultar(nome, especializacao);
+		return controller.consultar(nome, especializacao, idAutenticacao);
 	}
 }

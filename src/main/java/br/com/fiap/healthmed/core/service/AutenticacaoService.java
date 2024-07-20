@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.healthmed.adapter.controller.AutenticacaoController;
-import br.com.fiap.healthmed.adapter.repository.autenticacao.AutenticacaoDto;
 import br.com.fiap.healthmed.adapter.repository.autenticacao.AutenticacaoRepository;
 import br.com.fiap.healthmed.core.entity.autenticacao.Autenticacao;
 import br.com.fiap.healthmed.core.enums.SimOuNao;
@@ -22,11 +21,14 @@ public class AutenticacaoService implements AutenticacaoController {
     }
 
     @Override
-    @Transactional
-    public AutenticacaoDto detalhar(Long idAutenticacao) {
+    public boolean isAutenticado(Long idAutenticacao) {
    		Autenticacao autenticacao = repository.findById(idAutenticacao).orElseThrow(EntityNotFoundException::new);
 
-        return new AutenticacaoDto(autenticacao);
+        if (autenticacao.getLogado() == SimOuNao.NAO.ordinal()){
+            throw new BusinessException("Paciente não logado!", HttpStatus.UNAUTHORIZED, "Login");
+        }
+
+        return true;
     }
 
     @Override
