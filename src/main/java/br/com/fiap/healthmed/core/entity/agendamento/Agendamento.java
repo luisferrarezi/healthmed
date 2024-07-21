@@ -1,6 +1,7 @@
 package br.com.fiap.healthmed.core.entity.agendamento;
 
 import br.com.fiap.healthmed.adapter.repository.agendamento.AgendamentoDto;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,10 +33,12 @@ public class Agendamento {
 	@NotNull
 	private Long idPaciente;
 	
-	@NotNull
+	@NotNull	
+	@Column(name = "confimado_medico")
 	private Integer confirmadoMedico;	
 
 	@NotNull
+	@Column(name = "confimado_paciente")
 	private Integer confirmadoPaciente;	
 
 	public void atualizar(AgendamentoDto agendamento) {
