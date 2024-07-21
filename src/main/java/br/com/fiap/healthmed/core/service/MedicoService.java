@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import br.com.fiap.healthmed.adapter.controller.AutenticacaoController;
 import br.com.fiap.healthmed.adapter.controller.MedicoController;
 import br.com.fiap.healthmed.adapter.repository.medico.MedicoDto;
 import br.com.fiap.healthmed.adapter.repository.medico.MedicoRepository;
@@ -17,24 +16,17 @@ import jakarta.transaction.Transactional;
 @Service
 public class MedicoService implements MedicoController {
 
-    private final MedicoRepository medicoRepository;
-    private final AutenticacaoController autenticacaoController;
+    private final MedicoRepository medicoRepository;    
 
-    public MedicoService(MedicoRepository medicoRepository, AutenticacaoController autenticacaoController){
+    public MedicoService(MedicoRepository medicoRepository){
         this.medicoRepository = medicoRepository;
-        this.autenticacaoController = autenticacaoController;
     }
 
     @Override
     @Transactional
     public List<MedicoDto> consultar(String nome, Especializacao especializacao, long idAutenticacao) {
-        if (autenticacaoController.isAutenticado(idAutenticacao)) {
-           List<Medico> listMedico = medicoRepository.findMedico(especializacao, nome);
-
-           return listMedico.stream().map(MedicoDto::new).collect(Collectors.toList());
-        }        
-
-        return null;
+        List<Medico> listMedico = medicoRepository.findMedico(especializacao, nome);
+        return listMedico.stream().map(MedicoDto::new).collect(Collectors.toList());        
     }
 
     @Override

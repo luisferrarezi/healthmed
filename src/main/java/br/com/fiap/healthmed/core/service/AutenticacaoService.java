@@ -1,56 +1,37 @@
 package br.com.fiap.healthmed.core.service;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.healthmed.adapter.controller.AutenticacaoController;
 import br.com.fiap.healthmed.adapter.repository.autenticacao.AutenticacaoRepository;
+import br.com.fiap.healthmed.adapter.repository.autenticacao.ResponseDTO;
 import br.com.fiap.healthmed.core.entity.autenticacao.Autenticacao;
-import br.com.fiap.healthmed.core.enums.SimOuNao;
-import br.com.fiap.healthmed.core.exception.BusinessException;
+import br.com.fiap.healthmed.infra.security.TokenService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
 @Service
 public class AutenticacaoService implements AutenticacaoController {
 
     private final AutenticacaoRepository repository;
+   	private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public AutenticacaoService(AutenticacaoRepository repository){
+    public AutenticacaoService(AutenticacaoRepository repository, PasswordEncoder passwordEncoder, TokenService tokenService){
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+		this.tokenService = tokenService;
     }
 
     @Override
-    public boolean isAutenticado(Long idAutenticacao) {
-   		Autenticacao autenticacao = repository.findById(idAutenticacao).orElseThrow(EntityNotFoundException::new);
+    public ResponseDTO login(String login, String senha) {
+        Autenticacao autenticacao = repository.loadAutenticacaoByLogin(login).orElseThrow(EntityNotFoundException::new);
 
-        if (autenticacao.getLogado() == SimOuNao.NAO.ordinal()){
-            throw new BusinessException("Paciente não logado!", HttpStatus.UNAUTHORIZED, "Login");
+        if(passwordEncoder.matches(senha, autenticacao.getSenha())) {
+            String token = this.tokenService.generateToken(autenticacao);
+            return new ResponseDTO(autenticacao.getLogin(), token);
         }
 
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public void login(String login, String senha) {
-        Autenticacao autenticacao = repository.login(login, senha);
-
-        if (autenticacao != null){
-            autenticacao.setLogado(SimOuNao.SIM.ordinal());
-
-            this.repository.save(autenticacao);
-        } else {
-            throw new BusinessException("Usuário não localizado!", HttpStatus.NOT_FOUND, "Login");
-        }
-    }
-
-    @Override
-    @Transactional
-    public void logout(Long idAutenticacao) {
-        Autenticacao autenticacao = repository.findById(idAutenticacao).orElseThrow(EntityNotFoundException::new);
-        autenticacao.setLogado(SimOuNao.NAO.ordinal());
-
-        this.repository.save(autenticacao);
+        return null;
     }
 }
