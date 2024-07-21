@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "Agenda")
-@Table(name = "AGENDAMENTO")
+@Table(name = "AGENDA")
 @Getter
 @Setter
 @AllArgsConstructor
