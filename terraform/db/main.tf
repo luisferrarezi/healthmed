@@ -3,8 +3,8 @@ resource "azurerm_resource_group" "healthmed_db_rg" {
   location = "brazilsouth"
 }
 
-resource "azurerm_mysql_server" "htmed_mysql_srv" {
-  name                = "htmedsrv"
+resource "azurerm_mysql_server" "healthmed_mysql_srv" {
+  name                = "healthmedsrv"
   location            = azurerm_resource_group.healthmed_db_rg.location
   resource_group_name = azurerm_resource_group.healthmed_db_rg.name
 
