@@ -1,20 +1,22 @@
-name: 'App Infra deploy to azure'
+name: 'DB Infra deploy to azure'
 
 on:
   push:
     branches: [ "main" ]  
-
+ 
 env:
   ARM_CLIENT_ID: ${{secrets.CLIENT_ID}}
   ARM_CLIENT_SECRET: ${{secrets.CLIENT_SECRET}}
   ARM_TENANT_ID: ${{secrets.TENANT_ID}}
-  ARM_SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}  
-  ROOT_PATH_TERRAFORM: '${{ github.workspace }}/src/terraform/app/'
+  ARM_SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
+  DB_USERNAME: ${{secrets.DB_USERNAME}}
+  DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+  ROOT_PATH: '${{ github.workspace }}/src/terraform/db/'
 
 jobs:
   terraform_plan:
     name: 'Terraform plan'
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -22,7 +24,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4.1.1
-   
+      
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -30,11 +32,11 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
-      working-directory: ${{ env.ROOT_PATH_TERRAFORM }}
+      working-directory: ${{ env.ROOT_PATH }}
 
     - name: Terraform Plan
-      run: terraform plan
-      working-directory: ${{ env.ROOT_PATH_TERRAFORM }}
+      run: terraform plan -var db_username=$DB_USERNAME -var db_password=$DB_PASSWORD
+      working-directory: ${{ env.ROOT_PATH }}
 
   terraform_apply:
     name: 'Terraform apply'
@@ -56,8 +58,8 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
-      working-directory: ${{ env.ROOT_PATH_TERRAFORM }}
-
+      working-directory: ${{ env.ROOT_PATH }}
+     
     - name: Terraform apply
-      run: terraform apply --auto-approve
-      working-directory: ${{ env.ROOT_PATH_TERRAFORM }}
+      run: terraform apply -var db_username=$DB_USERNAME -var db_password=$DB_PASSWORD --auto-approve
+      working-directory: ${{ env.ROOT_PATH }}
