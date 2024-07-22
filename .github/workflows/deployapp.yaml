@@ -1,0 +1,70 @@
+name: Deploy app HealthMed
+
+on:
+  push:
+    branches: [main]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4.1.1
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4.1.0
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        server-id: github
+        settings-path: ${{ github.workspace }}
+
+    - name: Build with Maven
+      run: mvn clean package
+
+    - name: ACR Login
+      uses: Azure/docker-login@v1
+      with:
+        username: ${{ secrets.USERNAME_ACR }}
+        password: ${{ secrets.PASSWORD_ACR }}
+        login-server: ${{ secrets.SERVER_ACR }}
+    - run: |
+        docker build . -t healthmedacr.azurecr.io/healthmed:latest
+        docker push healthmedacr.azurecr.io/healthmed:latest
+        
+  deploy-aks:
+    needs: build
+    runs-on: ubuntu-latest   
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4.1.1
+
+    - name: Cria ConfigMap
+      run: |
+        touch config.yaml
+        cat > config.yaml << __EOF__
+        ${{ secrets.CONFIG_MAP_YAML }}
+        __EOF__
+
+    - name: Azure Login
+      uses: Azure/login@v2.0.0
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure Kubernetes set context
+      uses: Azure/aks-set-context@v3
+      with:        
+        resource-group: ${{ secrets.RESOURSE_GROUP }}
+        cluster-name: ${{ secrets.CLUSTER_NAME }}
+        subscription: ${{ secrets.SUBSCRIPTION }}
+
+    - name: Deploy to Kubernetes cluster
+      uses: Azure/k8s-deploy@v4.9
+      with:
+        manifests: |          
+          config.yaml
+          kubernetes/deployment.yaml
+          
