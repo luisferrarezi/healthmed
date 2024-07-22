@@ -11,7 +11,7 @@ env:
   ARM_SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
   DB_USERNAME: ${{secrets.DB_USERNAME}}
   DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-  ROOT_PATH: '${{ github.workspace }}/src/terraform/db/'
+  ROOT_PATH: '${{ github.workspace }}/terraform/db/'
 
 jobs:
   terraform_plan:
