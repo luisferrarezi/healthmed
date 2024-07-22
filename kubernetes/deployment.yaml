@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  labels:
+    app: deployment
+spec:
+  selector:
+    matchLabels:
+      app: healthmed
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: healthmed
+    spec:
+      containers:
+        - name: healthmed
+          image: healthmedacr.azurecr.io/healthmed:latest  
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1.0"                  
+          ports:
+            - containerPort: 8080
+              name: healthmed-port
+          env:
+            - name: DATASOURCE_URL   
+              valueFrom :
+                configMapKeyRef:
+                  name: config
+                  key: ds_url
+            - name: DATASOURCE_PASSWORD  
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: ds_pass
+            - name: DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: ds_username
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthmed-svc
+spec:
+  selector:
+    app: healthmed
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  type: LoadBalancer
