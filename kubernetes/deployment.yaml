@@ -43,6 +43,11 @@ spec:
                 configMapKeyRef:
                   name: config
                   key: ds_username
+            - name: SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: secret
 ---
 apiVersion: v1
 kind: Service
