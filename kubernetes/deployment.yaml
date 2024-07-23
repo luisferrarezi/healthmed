@@ -47,7 +47,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: config
-                  key: secret
+                  key: segredo
 ---
 apiVersion: v1
 kind: Service
